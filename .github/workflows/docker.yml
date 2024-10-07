@@ -32,19 +32,13 @@ jobs:
   run:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    env:
-      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-      ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
-      POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
     steps:
       - name: Login to Github Container Registry
         run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Pull Docker image
         run: docker pull $IMAGE_NAME
       - name: Run docker container
-        run: docker run $IMAGE_NAME
+        run: docker run -e ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY }} -e ALPACA_API_SECRET=${{ secrets.ALPACA_API_SECRET }} -e POLYGON_API_KEY=${{ secrets.POLYGON_API_KEY }} $IMAGE_NAME
       - name: Logout of Github Container Registry
         run: docker logout ghcr.io
 
-
-      
