@@ -10,7 +10,7 @@ on:
     - cron: '30 13 * 4,5,6,7,8,9,10 *' # Mar to Nov
 
 env:
-  IMAGE_NAME: ghcr.io/TheSiggs/Dividends-Trader:latest
+  IMAGE_NAME: ghcr.io/thesiggs/dividends-trader:latest
 
 jobs:
   build:
