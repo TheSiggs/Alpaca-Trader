@@ -15,5 +15,11 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=build /app/myapp .
 
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    echo "America/New_York" > /etc/timezone
+
+ENV TZ=America/New_York
+
 CMD ["./myapp"]
 

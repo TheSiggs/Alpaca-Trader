@@ -28,6 +28,8 @@ func main() {
 		BaseURL:   client.Config.AlpacaConfig.BaseURL,
 	})
 
+	log.Println("Local Time Zone Location:", time.Local)
+
 	acct, err := client.Client.GetAccount()
 	if err != nil {
 		panic(err)
