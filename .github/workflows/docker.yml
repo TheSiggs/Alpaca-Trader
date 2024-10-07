@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Login to Github Container Registry
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Build Docker Image
         run: docker build -t $IMAGE_NAME .
       - name: Push Docker image
@@ -32,7 +32,7 @@ jobs:
     needs: build
     steps:
       - name: Login to Github Container Registry
-        run: echo ${{secrets.GITHUB_TOKEN}} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Pull Docker image
         run: docker pull $IMAGE_NAME
       - name: Run docker container
