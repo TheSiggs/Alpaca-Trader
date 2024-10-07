@@ -27,7 +27,6 @@ func main() {
 		APISecret: client.Config.AlpacaConfig.APISecret,
 		BaseURL:   client.Config.AlpacaConfig.BaseURL,
 	})
-    log.Printf("Running app in %s mode\n", client.Config.Env)
 
 	acct, err := client.Client.GetAccount()
 	if err != nil {

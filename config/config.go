@@ -33,9 +33,11 @@ func Setup() Config {
 	}
 
 	env := os.Getenv("ENV")
+    log.Println(env)
 	if env != "production" {
 		env = "development"
 	}
+    log.Printf("Runnng in %s mode\n", env)
 
 	var baseURL string
 	if env == "production" {
