@@ -65,7 +65,7 @@ func main() {
 	// Buy the stock
 	notional := acct.Cash // Amount in dollars you want to invest
 	orderReq := alpaca.PlaceOrderRequest{
-		Symbol: SymbolToTrade,
+		Symbol:         SymbolToTrade,
 		Notional:       &notional,
 		Side:           alpaca.Buy,       // Order side: Buy or Sell
 		Type:           alpaca.Market,    // Order type: Market or Limit
@@ -114,9 +114,17 @@ func (client *TradingClient) UpcomingDividends() []models.Dividend {
 
 	c := polygon.New(client.Config.PolygonConfig.APIKey)
 
+    // Fallback Date to guess next market open
 	currentDate := time.Now()
 	currentDate = currentDate.AddDate(0, 0, 1)
 	year, month, day := currentDate.Date()
+
+    // Use API to get next market open
+	clock, err := client.Client.GetClock()
+	if err == nil {
+        year, month, day = clock.NextOpen.Date()
+	}
+
 	params := models.ListDividendsParams{}.
 		WithExDividendDate(models.EQ, models.Date(time.Date(year, month, day, 0, 0, 0, 0, time.Local))).
 		WithSort("cash_amount").
