@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-    strategies.Trade()
+    strategies.DividendFlipper()
 }
 
