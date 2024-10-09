@@ -66,6 +66,9 @@ func ExdividendShorter() {
     }
 
 	currentPrice := quote.AskPrice
+    if quote.AskPrice == 0 {
+        currentPrice = quote.BidPrice
+    }
 	takeProfitPrice := decimal.NewFromFloat((currentPrice * 0.99))
 	stopLossPrice := decimal.NewFromFloat((currentPrice * 1.002))
     log.Printf("Current Price: %v, Take Profit: %v, Stop Loss %v", currentPrice, takeProfitPrice, stopLossPrice)
