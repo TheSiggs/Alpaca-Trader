@@ -1,4 +1,4 @@
-name: Build and Run Dividend Trader
+name: Build and Run Trader
 
 on:
   push:
