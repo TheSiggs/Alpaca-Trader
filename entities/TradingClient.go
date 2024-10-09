@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
+	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
 	"github.com/nettis/alpaca-trader/config"
 	polygon "github.com/polygon-io/client-go/rest"
 	"github.com/polygon-io/client-go/rest/models"
@@ -15,6 +16,7 @@ import (
 
 type TradingClient struct {
 	Client *alpaca.Client
+    MarketClient *marketdata.Client
 	Config config.Config
 }
 

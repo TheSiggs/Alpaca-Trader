@@ -21,10 +21,10 @@ func ExdividendShorter() {
 		BaseURL:   client.Config.AlpacaConfig.BaseURL,
 	})
 
-	marketDataClient := marketdata.NewClient(marketdata.ClientOpts{
+	client.MarketClient = marketdata.NewClient(marketdata.ClientOpts{
 		APIKey:    client.Config.AlpacaConfig.APIKey,
 		APISecret: client.Config.AlpacaConfig.APISecret,
-		BaseURL:  "https://data.alpaca.markets",
+		BaseURL: client.Config.AlpacaConfig.MarketBaseURL,
 	})
 
 	log.Println("Local Time Zone Location:", time.Local)
@@ -56,7 +56,7 @@ func ExdividendShorter() {
 	// Buy the stock
 	notional := acct.Cash // Amount in dollars you want to invest
 
-	quote, err := marketDataClient.GetLatestQuote(SymbolToTrade, marketdata.GetLatestQuoteRequest{})
+	quote, err := client.MarketClient.GetLatestQuote(SymbolToTrade, marketdata.GetLatestQuoteRequest{})
 	if err != nil {
         log.Fatalf("Error getting quote for %s: %v", SymbolToTrade, err)
 	}

@@ -14,13 +14,16 @@ type Config struct {
 }
 
 type AlpacaConfig struct {
-	APIKey    string
-	APISecret string
-	BaseURL   string
+	APIKey        string
+	APISecret     string
+	BaseURL       string
+	MarketBaseURL string
 }
 
 const AlpacaBaseURLSandbox = "https://paper-api.alpaca.markets"
 const AlpacaBaseURLProduction = "https://api.alpaca.markets"
+
+const AlpacaMarketBaseURLProduction = "https://data.alpaca.markets"
 
 type PolygonConfig struct {
 	APIKey string
@@ -33,11 +36,11 @@ func Setup() Config {
 	}
 
 	env := os.Getenv("ENV")
-    log.Println(env)
+	log.Println(env)
 	if env != "production" {
 		env = "development"
 	}
-    log.Printf("Runnng in %s mode\n", env)
+	log.Printf("Runnng in %s mode\n", env)
 
 	var baseURL string
 	if env == "production" {
@@ -65,6 +68,7 @@ func Setup() Config {
 		BaseURL:   baseURL,
 		APIKey:    alpacaAPIKey,
 		APISecret: alpacaAPISecret,
+        MarketBaseURL: AlpacaMarketBaseURLProduction,
 	}
 
 	PolygonConfig := PolygonConfig{
