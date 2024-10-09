@@ -6,6 +6,7 @@ require (
 	github.com/alpacahq/alpaca-trade-api-go/v3 v3.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/polygon-io/client-go v1.16.6
+	github.com/shopspring/decimal v1.4.0
 )
 
 require (
@@ -19,7 +20,6 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/shopspring/decimal v1.4.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect

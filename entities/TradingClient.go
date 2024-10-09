@@ -42,6 +42,10 @@ func (client *TradingClient) CheckSymbol(symbol string) bool {
 		log.Printf("%s if not fraction tradable", symbol)
 		return false
 	}
+    if asset.Shortable == false {
+		log.Printf("%s if not shortable", symbol)
+		return false
+    }
 	return true
 }
 
@@ -89,10 +93,8 @@ func (client *TradingClient) TodaysDividends() []models.Dividend {
     // Use API to get next market open
 	clock, err := client.Client.GetClock()
 	if err != nil {
-       log.Fatal(err) 
-        return nil 
+        log.Fatalf("Failed to get clock: %v", err)
 	}
-    
     if !clock.IsOpen {
         log.Fatalln("Market is closed")
     }
