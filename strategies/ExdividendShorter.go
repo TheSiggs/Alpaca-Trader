@@ -69,8 +69,8 @@ func ExdividendShorter() {
     if quote.AskPrice == 0 {
         currentPrice = quote.BidPrice
     }
-	takeProfitPrice := decimal.NewFromFloat((currentPrice * 0.99))
-	stopLossPrice := decimal.NewFromFloat((currentPrice * 1.002))
+	takeProfitPrice := decimal.NewFromFloat((currentPrice * 0.97))
+	stopLossPrice := decimal.NewFromFloat((currentPrice * 1.02))
     log.Printf("Current Price: %v, Take Profit: %v, Stop Loss %v", currentPrice, takeProfitPrice, stopLossPrice)
 
 	orderReq := alpaca.PlaceOrderRequest{
@@ -78,7 +78,7 @@ func ExdividendShorter() {
 		Notional:    &notional,
 		Side:        alpaca.Sell,   // Order side: Buy or Sell
 		Type:        alpaca.Market, // Order type: Market or Limit
-		TimeInForce: alpaca.GTC,    // Time in force: Day, GTC, etc.
+		TimeInForce: alpaca.Day,    // Time in force: Day, GTC, etc.
 		OrderClass:  alpaca.Bracket,
 		TakeProfit: &alpaca.TakeProfit{
 			LimitPrice: &takeProfitPrice,
