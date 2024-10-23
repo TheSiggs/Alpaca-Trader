@@ -36,9 +36,19 @@ func Setup() Config {
 	}
 
 	env := os.Getenv("ENV")
-	log.Println(env)
-	if env != "production" {
-		env = "development"
+	switch env {
+	case "production":
+		env = "production"
+        break;
+    case "developement":
+        env = "developement"
+        break;
+	case "test":
+		env = "test"
+        break;
+    default:
+        env = "developement"
+        break;
 	}
 	log.Printf("Runnng in %s mode\n", env)
 
@@ -65,10 +75,10 @@ func Setup() Config {
 	}
 
 	AlpacaConfig := AlpacaConfig{
-		BaseURL:   baseURL,
-		APIKey:    alpacaAPIKey,
-		APISecret: alpacaAPISecret,
-        MarketBaseURL: AlpacaMarketBaseURLProduction,
+		BaseURL:       baseURL,
+		APIKey:        alpacaAPIKey,
+		APISecret:     alpacaAPISecret,
+		MarketBaseURL: AlpacaMarketBaseURLProduction,
 	}
 
 	PolygonConfig := PolygonConfig{
