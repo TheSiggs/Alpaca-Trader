@@ -71,6 +71,15 @@ func ExdividendShorter() {
     }
 	takeProfitPrice := decimal.NewFromFloat((currentPrice * 0.98))
 	stopLossPrice := decimal.NewFromFloat((currentPrice * 1.02))
+
+    if takeprofitprice > currentprice - 0.01 {
+        takeprofitprice = decimal.newfromfloat((currentprice - 1))
+    }
+
+    if stopLossPrice < currentprice + 0.01 {
+        stopLossPrice = decimal.newfromfloat((currentprice + 1))
+    }
+
     log.Printf("Current Price: %v, Take Profit: %v, Stop Loss %v", currentPrice, takeProfitPrice, stopLossPrice)
 
 	orderReq := alpaca.PlaceOrderRequest{
