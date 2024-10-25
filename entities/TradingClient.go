@@ -20,7 +20,9 @@ type TradingClient struct {
 	Config config.Config
 }
 
-
+type TradingClientInterface interface {
+	CurrentDateTime(days int) (int, time.Month, int)
+}
 
 func (client *TradingClient) CheckSymbol(symbol string) bool {
 	asset, err := client.Client.GetAsset(symbol)
@@ -56,16 +58,7 @@ func (client *TradingClient) UpcomingDividends() []models.Dividend {
 
 	c := polygon.New(client.Config.PolygonConfig.APIKey)
 
-    // Fallback Date to guess next market open
-	currentDate := time.Now()
-	currentDate = currentDate.AddDate(0, 0, 1)
-	year, month, day := currentDate.Date()
-
-    // Use API to get next market open
-	clock, err := client.Client.GetClock()
-	if err == nil {
-        year, month, day = clock.NextOpen.Date()
-	}
+    year, month, day := client.CurrentDate(1) 
 
 	params := models.ListDividendsParams{}.
 		WithExDividendDate(models.EQ, models.Date(time.Date(year, month, day, 0, 0, 0, 0, time.Local))).
@@ -83,23 +76,11 @@ func (client *TradingClient) UpcomingDividends() []models.Dividend {
 	return dividends
 }
 
-func (client *TradingClient) TodaysDividends() []models.Dividend {
+
+func (client *TradingClient) Dividends(year int, month time.Month, day int) []models.Dividend {
 	var dividends []models.Dividend
 
 	c := polygon.New(client.Config.PolygonConfig.APIKey)
-
-    // Fallback Date to guess next market open
-	currentDate := time.Now()
-	year, month, day := currentDate.Date()
-
-    // Use API to get next market open
-	clock, err := client.Client.GetClock()
-	if err != nil {
-        log.Fatalf("Failed to get clock: %v", err)
-	}
-    if !clock.IsOpen {
-        log.Fatalln("Market is closed")
-    }
 
 	params := models.ListDividendsParams{}.
 		WithExDividendDate(models.EQ, models.Date(time.Date(year, month, day, 0, 0, 0, 0, time.Local))).
@@ -115,4 +96,48 @@ func (client *TradingClient) TodaysDividends() []models.Dividend {
 	}
 
 	return dividends
+}
+
+
+func (client *TradingClient) CurrentDate(days int) (int, time.Month, int) {
+    // Fallback Date to guess next market open
+	currentDate := time.Now()
+    if days != 0 {
+        currentDate = currentDate.AddDate(0, 0, days)
+    } 
+	year, month, day := currentDate.Date()
+
+    client.CheckMarket()
+
+    return year, month, day
+}
+
+func (client *TradingClient) CheckMarket() {
+    // Use API to get next market open
+	clock, err := client.Client.GetClock()
+	if err != nil {
+        log.Fatalf("Failed to get clock: %v", err)
+	}
+    if !clock.IsOpen {
+        log.Fatalln("Market is closed")
+    }
+}
+
+func (client *TradingClient) LargestDividendStock(year int, month time.Month, day int) string {
+	// Look for a stock to buy this stock should have an ex dividend date for tomorrow in which we will sell it
+	dividends := client.Dividends(year, month, day)
+	if len(dividends) == 0 {
+		log.Println("No stocks to buy today")
+		return ""
+	}
+	var SymbolToTrade string
+	for _, dividend := range dividends {
+		dividendJSON, _ := json.Marshal(dividend)
+		log.Printf("Checking Symbol: %v", string(dividendJSON))
+		if client.CheckSymbol(dividend.Ticker) {
+			SymbolToTrade = dividend.Ticker
+			break
+		}
+	}
+    return SymbolToTrade
 }

@@ -7,84 +7,61 @@ import (
 
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
-	"github.com/nettis/alpaca-trader/config"
 	"github.com/nettis/alpaca-trader/entities"
 	"github.com/shopspring/decimal"
 )
 
-func ExdividendShorter() {
-	var client entities.TradingClient
-	client.Config = config.Setup()
-	client.Client = alpaca.NewClient(alpaca.ClientOpts{
-		APIKey:    client.Config.AlpacaConfig.APIKey,
-		APISecret: client.Config.AlpacaConfig.APISecret,
-		BaseURL:   client.Config.AlpacaConfig.BaseURL,
-	})
-
-	client.MarketClient = marketdata.NewClient(marketdata.ClientOpts{
-		APIKey:    client.Config.AlpacaConfig.APIKey,
-		APISecret: client.Config.AlpacaConfig.APISecret,
-		BaseURL: client.Config.AlpacaConfig.MarketBaseURL,
-	})
-
+func ExdividendShorter(client *entities.TradingClient, year int, month time.Month, day int) (*alpaca.Order, error) {
 	log.Println("Local Time Zone Location:", time.Local)
-
 	acct, err := client.Client.GetAccount()
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("%+v\n\n", *acct)
 
-	// Look for a stock to buy this stock should have an ex dividend date for tomorrow in which we will sell it
-	dividends := client.TodaysDividends()
-	if len(dividends) == 0 {
-		log.Println("No stocks to buy today")
-		return
-	}
-	var SymbolToTrade string
-	for _, dividend := range dividends {
-		dividendJSON, _ := json.Marshal(dividend)
-		log.Printf("Checking Symbol: %v", string(dividendJSON))
-		if client.CheckSymbol(dividend.Ticker) {
-			SymbolToTrade = dividend.Ticker
-			break
-		}
-	}
-
-	log.Printf("Trading On Symbol: %s\n\n", SymbolToTrade)
+    SymbolToTrade := client.LargestDividendStock(year, month, day)
 
 	// Buy the stock
-	notional := acct.Cash // Amount in dollars you want to invest
+	cash := acct.Cash // Amount in dollars you want to invest
 
 	quote, err := client.MarketClient.GetLatestQuote(SymbolToTrade, marketdata.GetLatestQuoteRequest{})
 	if err != nil {
-        log.Fatalf("Error getting quote for %s: %v", SymbolToTrade, err)
+		log.Fatalf("Error getting quote for %s: %v", SymbolToTrade, err)
 	}
-    quoteJson, err := json.Marshal(quote)
-    if err == nil {
-        log.Printf("Quote for %s: %v\n", SymbolToTrade, string(quoteJson))
-    }
+	quoteJson, err := json.Marshal(quote)
+	if err == nil {
+		log.Printf("Quote for %s: %v\n", SymbolToTrade, string(quoteJson))
+	}
 
-	currentPrice := quote.AskPrice
-    if quote.AskPrice == 0 {
-        currentPrice = quote.BidPrice
-    }
-	takeProfitPrice := decimal.NewFromFloat((currentPrice * 0.98))
-	stopLossPrice := decimal.NewFromFloat((currentPrice * 1.02))
+	price := quote.AskPrice
+	if quote.AskPrice == 0 {
+		price = quote.BidPrice
+	}
 
-    if takeProfitPrice.GreaterThan(decimal.NewFromFloat(currentPrice - 0.01)) {
-        takeProfitPrice = decimal.NewFromFloat((currentPrice - 1))
-    }
+    currentPrice := decimal.NewFromFloat(price)
+    takeProfitThreshold := decimal.NewFromFloat(0.98)
+	stopLossThreshold := decimal.NewFromFloat(1.02)
 
-    if stopLossPrice.GreaterThan(decimal.NewFromFloat(currentPrice + 0.01)) {
-        stopLossPrice = decimal.NewFromFloat((currentPrice + 1))
-    }
+	qty := cash.Div(currentPrice).Floor()
+	takeProfitPrice := currentPrice.Mul(takeProfitThreshold)
+	stopLossPrice := currentPrice.Mul(stopLossThreshold)
 
-    log.Printf("Current Price: %v, Take Profit: %v, Stop Loss %v", currentPrice, takeProfitPrice, stopLossPrice)
+	if takeProfitPrice.GreaterThan(currentPrice.Sub(decimal.NewFromFloat(0.01))) {
+		takeProfitPrice = currentPrice.Sub(decimal.NewFromInt(1))
+	}
+
+	if stopLossPrice.GreaterThan(currentPrice.Add(decimal.NewFromFloat(0.01))) {
+		stopLossPrice = currentPrice.Add(decimal.NewFromInt(1))
+	}
+
+    takeProfitPrice = takeProfitPrice.Round(2)
+    stopLossPrice = stopLossPrice.Round(2)
+    currentPrice = currentPrice.Round(2)
+
+    log.Printf("Symbol: %v, Current Price: %v, Take Profit: %v, Stop Loss %v, Qty: %v", SymbolToTrade, currentPrice, takeProfitPrice, stopLossPrice, qty)
 
 	orderReq := alpaca.PlaceOrderRequest{
 		Symbol:      SymbolToTrade,
-		Notional:    &notional,
+		Qty:         &qty,
 		Side:        alpaca.Sell,   // Order side: Buy or Sell
 		Type:        alpaca.Market, // Order type: Market or Limit
 		TimeInForce: alpaca.Day,    // Time in force: Day, GTC, etc.
@@ -95,17 +72,18 @@ func ExdividendShorter() {
 		StopLoss: &alpaca.StopLoss{
 			StopPrice: &stopLossPrice,
 		},
-        PositionIntent: alpaca.SellToOpen,
+		PositionIntent: alpaca.SellToOpen,
 	}
 
 	// Submit the order
 	order, err := client.Client.PlaceOrder(orderReq)
 	if err != nil {
 		log.Println("Error placing order:", err)
-		return
+		return nil, err
 	}
 	orderJSON, err := json.Marshal(order)
 	if err == nil {
 		log.Printf("Order placed for %s: %+v", SymbolToTrade, string(orderJSON))
 	}
+    return order, nil
 }

@@ -1,14 +1,16 @@
-package main
+package strategies
 
 import (
+	"testing"
+	"time"
+
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
 	"github.com/nettis/alpaca-trader/config"
 	"github.com/nettis/alpaca-trader/entities"
-	"github.com/nettis/alpaca-trader/strategies"
 )
 
-func main() {
+func TestOrders(t *testing.T) {
 	var client entities.TradingClient
 	client.Config = config.Setup()
 	client.Client = alpaca.NewClient(alpaca.ClientOpts{
@@ -23,7 +25,18 @@ func main() {
 		BaseURL:   client.Config.AlpacaConfig.MarketBaseURL,
 	})
 
-    year, month, day := client.CurrentDate(0)
-    strategies.ExdividendShorter(&client, year, month, day)
-}
+    for days := 0; days > -10; days-- {
+        currentDate := time.Now()
+        currentDate = currentDate.AddDate(0, 0, days)
+        year, month, day := currentDate.Date()
+        order, err := ExdividendShorter(&client, year, month, day)
+        if err != nil {
+            t.Fatal(err)
+        }
 
+        err = client.Client.CancelOrder(order.ID)
+        if err != nil {
+            t.Fatal(err)
+        }
+    }
+}
