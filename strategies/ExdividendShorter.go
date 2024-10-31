@@ -18,6 +18,15 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		panic(err)
 	}
 
+    closedPositions, err := client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{
+        CancelOrders: true,
+    })
+    if err != nil {
+        log.Println(err)
+    }
+    log.Printf("Closed Positions: %v", closedPositions)
+
+
     SymbolToTrade := client.LargestDividendStock(year, month, day)
 
 	// Buy the stock
