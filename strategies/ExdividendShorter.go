@@ -72,8 +72,9 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		Symbol:      SymbolToTrade,
 		Qty:         &qty,
 		Side:        alpaca.Sell,   // Order side: Buy or Sell
-		Type:        alpaca.Market, // Order type: Market or Limit
-		TimeInForce: alpaca.Day,    // Time in force: Day, GTC, etc.
+		Type:        alpaca.Limit, // Order type: Market or Limit
+        LimitPrice:  &currentPrice,
+		TimeInForce: alpaca.CLS,    // Time in force: Day, GTC, etc.
 		OrderClass:  alpaca.Bracket,
 		TakeProfit: &alpaca.TakeProfit{
 			LimitPrice: &takeProfitPrice,
@@ -82,6 +83,7 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 			StopPrice: &stopLossPrice,
 		},
 		PositionIntent: alpaca.SellToOpen,
+        ExtendedHours: true,
 	}
 
 	// Submit the order
