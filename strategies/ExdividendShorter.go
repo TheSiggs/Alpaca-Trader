@@ -18,7 +18,7 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		panic(err)
 	}
 
-    SymbolToTrade := client.LargestDividendStock(year, month, day)
+	SymbolToTrade := client.LargestDividendStock(year, month, day)
 
 	// Buy the stock
 	cash := acct.Cash // Amount in dollars you want to invest
@@ -37,8 +37,8 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		price = quote.BidPrice
 	}
 
-    currentPrice := decimal.NewFromFloat(price)
-    takeProfitThreshold := decimal.NewFromFloat(0.98)
+	currentPrice := decimal.NewFromFloat(price)
+	takeProfitThreshold := decimal.NewFromFloat(0.98)
 	stopLossThreshold := decimal.NewFromFloat(1.02)
 
 	qty := cash.Div(currentPrice).Floor()
@@ -53,19 +53,19 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		stopLossPrice = currentPrice.Add(decimal.NewFromInt(1))
 	}
 
-    takeProfitPrice = takeProfitPrice.Round(2)
-    stopLossPrice = stopLossPrice.Round(2)
-    currentPrice = currentPrice.Round(2)
+	takeProfitPrice = takeProfitPrice.Round(2)
+	stopLossPrice = stopLossPrice.Round(2)
+	currentPrice = currentPrice.Round(2)
 
-    log.Printf("Symbol: %v, Current Price: %v, Take Profit: %v, Stop Loss %v, Qty: %v", SymbolToTrade, currentPrice, takeProfitPrice, stopLossPrice, qty)
+	log.Printf("Symbol: %v, Current Price: %v, Take Profit: %v, Stop Loss %v, Qty: %v", SymbolToTrade, currentPrice, takeProfitPrice, stopLossPrice, qty)
 
 	orderReq := alpaca.PlaceOrderRequest{
 		Symbol:      SymbolToTrade,
 		Qty:         &qty,
-		Side:        alpaca.Sell,   // Order side: Buy or Sell
-		Type:        alpaca.Limit, // Order type: Market or Limit
-        LimitPrice:  &currentPrice,
-		TimeInForce: alpaca.CLS,    // Time in force: Day, GTC, etc.
+		Side:        alpaca.Sell,
+		Type:        alpaca.Limit,
+		LimitPrice:  &currentPrice,
+		TimeInForce: alpaca.CLS,
 		OrderClass:  alpaca.Bracket,
 		TakeProfit: &alpaca.TakeProfit{
 			LimitPrice: &takeProfitPrice,
@@ -74,7 +74,6 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 			StopPrice: &stopLossPrice,
 		},
 		PositionIntent: alpaca.SellToOpen,
-        ExtendedHours: true,
 	}
 
 	// Submit the order
@@ -87,5 +86,5 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 	if err == nil {
 		log.Printf("Order placed for %s: %+v", SymbolToTrade, string(orderJSON))
 	}
-    return order, nil
+	return order, nil
 }
