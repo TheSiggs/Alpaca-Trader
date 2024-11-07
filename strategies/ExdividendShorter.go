@@ -18,7 +18,10 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		panic(err)
 	}
 
-	SymbolToTrade := client.LargestDividendStock(year, month, day)
+	SymbolToTrade, err := client.LargestDividendStock(year, month, day)
+    if err != nil {
+        return nil, err
+    }
 
 	// Buy the stock
 	cash := acct.Cash // Amount in dollars you want to invest
@@ -65,7 +68,7 @@ func ExdividendShorter(client *entities.TradingClient, year int, month time.Mont
 		Side:        alpaca.Sell,
 		Type:        alpaca.Limit,
 		LimitPrice:  &currentPrice,
-		TimeInForce: alpaca.CLS,
+		TimeInForce: alpaca.Day,
 		OrderClass:  alpaca.Bracket,
 		TakeProfit: &alpaca.TakeProfit{
 			LimitPrice: &takeProfitPrice,

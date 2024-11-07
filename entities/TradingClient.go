@@ -3,6 +3,7 @@ package entities
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
@@ -123,13 +124,14 @@ func (client *TradingClient) CheckMarket() {
     }
 }
 
-func (client *TradingClient) LargestDividendStock(year int, month time.Month, day int) string {
+func (client *TradingClient) LargestDividendStock(year int, month time.Month, day int) (string, error) {
 	// Look for a stock to buy this stock should have an ex dividend date for tomorrow in which we will sell it
 	dividends := client.Dividends(year, month, day)
 	if len(dividends) == 0 {
 		log.Println("No stocks to buy today")
-		return ""
+		return "", errors.New("No stocks to buy today")
 	}
+
 	var SymbolToTrade string
 	for _, dividend := range dividends {
 		dividendJSON, _ := json.Marshal(dividend)
@@ -139,5 +141,5 @@ func (client *TradingClient) LargestDividendStock(year int, month time.Month, da
 			break
 		}
 	}
-    return SymbolToTrade
+    return SymbolToTrade, nil
 }
