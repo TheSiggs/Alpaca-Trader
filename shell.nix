@@ -1,8 +1,9 @@
 { pkgs ? import <nixpkgs> { } }:
 
 pkgs.mkShell {
-  buildInputs = [
-    pkgs.go
+  buildInputs = with pkgs; [
+    go
+    gnumake
   ];
 
   # Set GOPATH to a writable location (like a 'go' directory in the project)
