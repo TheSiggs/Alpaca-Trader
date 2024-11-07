@@ -17,6 +17,10 @@ help: # Lists commands
 t: # Runs the golang testing suite 
 	go test ./... -cover
 
+.PHONY: tidy
+tidy: # Runs mod tidy 
+	go mod tidy 
+
 .PHONY: b
 b: # Builds the golang app
 	go build .  
