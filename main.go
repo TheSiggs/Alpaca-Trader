@@ -24,6 +24,10 @@ func main() {
 	})
 
     year, month, day := client.CurrentDate(0)
+
+    client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{
+        CancelOrders: true,
+    })
     strategies.ExdividendShorter(&client, year, month, day)
 }
 
