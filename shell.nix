@@ -26,7 +26,7 @@ pkgs.mkShell {
     echo "Go development environment ready"
     
     # Start zsh shell
-    zsh
+    exec zsh
   '';
 }
 
