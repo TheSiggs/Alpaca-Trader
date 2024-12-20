@@ -11,27 +11,14 @@ import (
 )
 
 
-func DividendFlipper() {
-	var client entities.TradingClient
-	client.Config = config.Setup()
-	client.Client = alpaca.NewClient(alpaca.ClientOpts{
-		APIKey:    client.Config.AlpacaConfig.APIKey,
-		APISecret: client.Config.AlpacaConfig.APISecret,
-		BaseURL:   client.Config.AlpacaConfig.BaseURL,
-	})
-
+func DividendFlipper(client *entities.TradingClient, year int, month time.Month, day int) (*alpaca.Order, error) {
 	log.Println("Local Time Zone Location:", time.Local)
-
 	acct, err := client.Client.GetAccount()
 	if err != nil {
 		panic(err)
 	}
 	log.Printf("%+v\n\n", *acct)
 
-	closed_orders, err := client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{CancelOrders: true})
-	if err != nil {
-		log.Println(err)
-	}
 	jsonClosedOrders, err := json.Marshal(closed_orders)
 	if err == nil {
 		log.Printf("Positions closed: %+v\n", string(jsonClosedOrders))

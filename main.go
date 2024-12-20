@@ -28,6 +28,6 @@ func main() {
     client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{
         CancelOrders: true,
     })
-    strategies.ExdividendShorter(&client, year, month, day)
+    strategies.DividendFlipper(&client, year, month, day)
 }
 
