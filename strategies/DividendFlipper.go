@@ -5,21 +5,12 @@ import (
 	"log"
 	"time"
 
+	"errors"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
-	"github.com/nettis/alpaca-trader/config"
 	"github.com/nettis/alpaca-trader/entities"
 )
 
-
-func DividendFlipper() {
-	var client entities.TradingClient
-	client.Config = config.Setup()
-	client.Client = alpaca.NewClient(alpaca.ClientOpts{
-		APIKey:    client.Config.AlpacaConfig.APIKey,
-		APISecret: client.Config.AlpacaConfig.APISecret,
-		BaseURL:   client.Config.AlpacaConfig.BaseURL,
-	})
-
+func DividendFlipper(client *entities.TradingClient, year int, month time.Month, day int) (*alpaca.Order, error) {
 	log.Println("Local Time Zone Location:", time.Local)
 
 	acct, err := client.Client.GetAccount()
@@ -41,7 +32,7 @@ func DividendFlipper() {
 	dividends := client.UpcomingDividends()
 	if len(dividends) == 0 {
 		log.Println("No stocks to buy today")
-		return
+		return nil, errors.New("No stocks to buy today")
 	}
 	var SymbolToTrade string
 	for _, dividend := range dividends {
@@ -68,10 +59,11 @@ func DividendFlipper() {
 	order, err := client.Client.PlaceOrder(orderReq) // FIXME: Error placing order: invalid position_intent specified (HTTP 422, Code 40010001)
 	if err != nil {
 		log.Println("Error placing order:", err)
-		return
+		return nil, err
 	}
 	orderJSON, err := json.Marshal(order)
 	if err == nil {
 		log.Printf("Order placed for %s: %+v", SymbolToTrade, string(orderJSON))
 	}
+	return order, nil
 }

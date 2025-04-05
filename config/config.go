@@ -11,6 +11,7 @@ type Config struct {
 	AlpacaConfig  AlpacaConfig
 	PolygonConfig PolygonConfig
 	Env           string
+	Stragegy      string
 }
 
 type AlpacaConfig struct {
@@ -39,16 +40,16 @@ func Setup() Config {
 	switch env {
 	case "production":
 		env = "production"
-        break;
-    case "developement":
-        env = "developement"
-        break;
+		break
+	case "developement":
+		env = "developement"
+		break
 	case "test":
 		env = "test"
-        break;
-    default:
-        env = "developement"
-        break;
+		break
+	default:
+		env = "developement"
+		break
 	}
 	log.Printf("Runnng in %s mode\n", env)
 
@@ -74,6 +75,11 @@ func Setup() Config {
 		log.Fatalf("Missing environment variable: POLYGON_API_KEY")
 	}
 
+	strategy := os.Getenv("STRATEGY")
+	if strategy == "" {
+		log.Fatalf("Missing environment variable: STRATEGY")
+	}
+
 	AlpacaConfig := AlpacaConfig{
 		BaseURL:       baseURL,
 		APIKey:        alpacaAPIKey,
@@ -89,6 +95,7 @@ func Setup() Config {
 		AlpacaConfig:  AlpacaConfig,
 		PolygonConfig: PolygonConfig,
 		Env:           env,
+		Stragegy:      strategy,
 	}
 	return Config
 }

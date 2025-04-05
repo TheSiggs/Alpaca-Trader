@@ -23,11 +23,15 @@ func main() {
 		BaseURL:   client.Config.AlpacaConfig.MarketBaseURL,
 	})
 
-    year, month, day := client.CurrentDate(0)
+	year, month, day := client.CurrentDate(0)
 
-    client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{
-        CancelOrders: true,
-    })
-    strategies.ExdividendShorter(&client, year, month, day)
+	client.Client.CloseAllPositions(alpaca.CloseAllPositionsRequest{
+		CancelOrders: true,
+	})
+	switch strategy := client.Config.Stragegy; strategy {
+	case "ExdividendShorter":
+		strategies.ExdividendShorter(&client, year, month, day)
+	case "DividendFlipper":
+		strategies.DividendFlipper(&client, year, month, day)
+	}
 }
-
