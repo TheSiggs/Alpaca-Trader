@@ -46,7 +46,7 @@ jobs:
       - name: Pull Docker image
         run: docker pull $IMAGE_NAME
       - name: Run docker container
-        run: docker run -e ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY_PA31SXB8FOAV }} -e ALPACA_API_SECRET=${{ secrets.ALPACA_API_SECRET_PA31SXB8FOAV }} -e POLYGON_API_KEY=${{ secrets.POLYGON_API_KEY }} -e ENV=${{ vars.ENV }} $IMAGE_NAME
+        run: docker run -e STRATEGY="ExdividendShorter" -e ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY_PA31SXB8FOAV }} -e ALPACA_API_SECRET=${{ secrets.ALPACA_API_SECRET_PA31SXB8FOAV }} -e POLYGON_API_KEY=${{ secrets.POLYGON_API_KEY }} -e ENV=${{ vars.ENV }} $IMAGE_NAME
       - name: Logout of Github Container Registry
         run: docker logout ghcr.io
 
@@ -63,6 +63,6 @@ jobs:
       - name: Pull Docker image
         run: docker pull $IMAGE_NAME
       - name: Run docker container
-        run: docker run -e ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY_PA3EZ2WN3OEZ }} -e ALPACA_API_SECRET=${{ secrets.ALPACA_API_SECRET_PA3EZ2WN3OEZ }} -e POLYGON_API_KEY=${{ secrets.POLYGON_API_KEY }} -e ENV=${{ vars.ENV }} $IMAGE_NAME
+        run: docker run -e STRATEGY="DividendFlipper" -e ALPACA_API_KEY=${{ secrets.ALPACA_API_KEY_PA3EZ2WN3OEZ }} -e ALPACA_API_SECRET=${{ secrets.ALPACA_API_SECRET_PA3EZ2WN3OEZ }} -e POLYGON_API_KEY=${{ secrets.POLYGON_API_KEY }} -e ENV=${{ vars.ENV }} $IMAGE_NAME
       - name: Logout of Github Container Registry
         run: docker logout ghcr.io
